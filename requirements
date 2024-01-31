@@ -1,0 +1,7 @@
+style~=1.1.0
+pip~=23.3.2
+attrs~=23.1.0
+distro~=1.7.0
+selenium~=4.16.0
+keyboard~=0.13.5
+pytest~=7.3.1
