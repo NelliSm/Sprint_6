@@ -1,5 +1,7 @@
 import allure
 from pages.base_page import BasePage
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions
 
 
 class MainPage(BasePage):

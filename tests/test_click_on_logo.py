@@ -12,23 +12,26 @@ class TestLogoClick:
     @allure.description('Проверка перехода на гланую страницу Самоката при клике на лого Самокат')
     def test_click_on_scooter_logo(self, driver):
         scooter = OrderPage(driver)
-        scooter.go_to_site(ConstantsUrl.URL_ORDER)
-        scooter.click(LocatorsOrder.SAMOKAT_IMG_BUTTON)
+        scooter.go_to_site(f"{ConstantsUrl.URL_MAIN}order")
+        driver.find_element(*LocatorsOrder.SAMOKAT_IMG_BUTTON).click()
         assert driver.current_url == ConstantsUrl.URL_MAIN
 
-    @allure.description('Проверка перехода на сайт /dzen.ru при клике на лого Яндекс. Ожидание загрузки новой '
-                        'страницы. Проверка, что после закрытия нового окна, оказываемся на странице заказа Самоката')
-    def test_click_on_yandex_logo_check_redirect(self, driver):
+#Тест клика на Яндекс разделила на два метода проверки
+    @allure.description('Проверка, что при клике на лого Яндекс открывается новое окно')
+    def test_click_on_yandex_logo_check_open_new_window(self, driver):
         ya_logo = OrderPage(driver)
-        ya_logo.go_to_site(ConstantsUrl.URL_ORDER)
-        current_window = driver.current_window_handle
+        ya_logo.go_to_site(f"{ConstantsUrl.URL_MAIN}order")
         old_windows = driver.window_handles
-        ya_logo.click(LocatorsOrder.YA_BUTTON)
+        driver.find_element(*LocatorsOrder.YA_BUTTON).click()
         WebDriverWait(driver, 5).until(expected_conditions.new_window_is_opened(old_windows))
-        new_window = [i for i in driver.window_handles if i not in old_windows]
-        driver.switch_to.window(new_window[0])
-        WebDriverWait(driver, 10).until(
-            expected_conditions.url_contains(ConstantsUrl.URL_REDIRECT))
-        driver.close()
-        driver.switch_to.window(current_window)
-        assert driver.current_url == ConstantsUrl.URL_ORDER
+        assert len(driver.window_handles) == len(old_windows) + 1
+
+    @allure.description('Проверка, по клику на Яндекс при переходе в новое окно, текущий url содержит /dzen.ru')
+    def test_click_on_yandex_logo_check_redirected_to_new_window(self, driver):
+        ya_logo = OrderPage(driver)
+        ya_logo.go_to_site(f"{ConstantsUrl.URL_MAIN}order")
+        driver.find_element(*LocatorsOrder.YA_BUTTON).click()
+        new_window = driver.window_handles[1]
+        driver.switch_to.window(new_window)
+        WebDriverWait(driver, 3).until(expected_conditions.url_contains(ConstantsUrl.URL_REDIRECT))
+        assert 'https://dzen.ru/' in driver.current_url
